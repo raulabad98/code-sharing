@@ -1,9 +1,9 @@
 
+import * as _ from "lodash";
 import initFx = require("../servidor/inicializar");
 const admin = initFx.adminFirebase;
 const firestore = initFx.firestoreOpts;
 
-// Change if you need other numbers
 type _definedLevel = (1 | 2 | 3 | 4 | 5);
 
 /**
@@ -123,6 +123,36 @@ export async function securityLayer(
     } else {
         if (!apiType._definedType) {
             // Public API
+            if (apiParams.required) {
+                for (const iterator of apiParams._definedParams) {
+                    const item = apiParams.userParams.find((item) => item.nameBody === iterator);
+                    if (item?.valueBody === null) {
+                        return {
+                            status: 400,
+                            code: "x1f-S/S/securityLayer",
+                            subcode: 5,
+                            devDescription:
+                                "The PARAMETERS of the user call do not contain the PARAMETERS defined by the API.",
+                        };
+                    }
+                }
+            }
+
+            if (apiBody.required) {
+                for (const iterator of apiBody._definedBody) {
+                    const item = apiBody.userBody.find((item) => item.nameBody === iterator);
+                    if (item?.valueBody === null) {
+                        return {
+                            status: 400,
+                            code: "x1f-S/S/securityLayer",
+                            subcode: 6,
+                            devDescription:
+                                "The BODY of the user call does not contain the BODY defined by the API.",
+                        };
+                    }
+                }
+            }
+
             return {
                 status: 201,
                 code: "x19f-S/S/securityLayer",
@@ -193,7 +223,7 @@ export async function securityLayer(
                                     code: "x1f-S/S/securityLayer",
                                     subcode: 6,
                                     devDescription:
-                                        "The body of the user call does not contain the body defined by the API.",
+                                        "The BODY of the user call does not contain the BODY defined by the API.",
                                 };
                             }
                         }
